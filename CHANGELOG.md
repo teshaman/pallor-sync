@@ -3,6 +3,10 @@
 All notable changes to this module. Newest version first.
 Older packaged zips are kept in `backups/` and are never deleted.
 
+## 1.0.3 — 2026-09-16
+- Session recorder ignores documents written to compendiums, so pushing shared items or scenes no longer logs them as 'Item created' / 'Scene created' table events.
+- Content hashes are canonicalised before comparing: self-closing HTML tags equal plain tags, and empty strings, empty lists and 'none' fields are ignored, so a first link between two worlds no longer reports formatting-only conflicts.
+
 ## 1.0.2 — 2026-09-16
 - Fix: a linked pair whose stored hashes differ only because the compendium copy is re-formatted on write (for example <br /> to <br>, empty activity fields to 'none') is now reported as in sync instead of a conflict; three-way check order corrected.
 - Scan links a shared document arriving from the other world to a same-name local copy that was never shared (link if identical, conflict otherwise) instead of pulling it in as a duplicate.

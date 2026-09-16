@@ -268,7 +268,7 @@ export function installRecorder() {
   });
 
   Hooks.on("updateActor", (actor, changes) => {
-    if (!enabled() || !pageId) return;
+    if (!enabled() || !pageId || actor.pack) return;
     const prev = actorCache.get(actor.id) ?? snapshotActor(actor);
     const flat = foundry.utils.flattenObject(changes);
     const now = snapshotActor(actor);
@@ -287,20 +287,20 @@ export function installRecorder() {
 
   const itemOwner = item => item.parent instanceof Actor ? item.parent : null;
   Hooks.on("createItem", item => {
-    if (!enabled() || !pageId) return;
+    if (!enabled() || !pageId || item.pack) return;
     const owner = itemOwner(item);
     if (item.system?.quantity !== undefined) qtyCache.set(item.uuid, item.system.quantity);
     if (owner) record("item-add", `${actorName(owner)} gained ${item.name}${item.system?.quantity > 1 ? ` ×${item.system.quantity}` : ""}`, { actor: owner.name, item: item.name, type: item.type });
     else record("created", `Item created: ${item.name} (${item.type})`);
   });
   Hooks.on("deleteItem", item => {
-    if (!enabled() || !pageId) return;
+    if (!enabled() || !pageId || item.pack) return;
     const owner = itemOwner(item);
     qtyCache.delete(item.uuid);
     if (owner) record("item-remove", `${actorName(owner)} lost ${item.name}`, { actor: owner.name, item: item.name, type: item.type });
   });
   Hooks.on("updateItem", (item, changes) => {
-    if (!enabled() || !pageId) return;
+    if (!enabled() || !pageId || item.pack) return;
     const owner = itemOwner(item);
     const q = foundry.utils.getProperty(changes, "system.quantity");
     if (owner && q !== undefined) {
@@ -362,16 +362,16 @@ export function installRecorder() {
     record("journal", `Journal edited: ${entryName}${pageName ? ` / ${pageName}` : ""}`);
   };
   Hooks.on("updateJournalEntryPage", (page, changes) => {
-    if (!enabled() || !pageId || flagOf(page.parent, "isLog")) return;
+    if (!enabled() || !pageId || page.pack || flagOf(page.parent, "isLog")) return;
     if (changes.text || changes.name) journalEdit(page.parent?.name ?? "?", page.name);
   });
   Hooks.on("createJournalEntry", entry => {
-    if (!enabled() || !pageId || flagOf(entry, "isLog")) return;
+    if (!enabled() || !pageId || entry.pack || flagOf(entry, "isLog")) return;
     record("created", `Journal created: ${entry.name}`);
   });
-  Hooks.on("createScene", scene => { if (enabled() && pageId) record("created", `Scene created: ${scene.name}`); });
-  Hooks.on("createActor", actor => { if (enabled() && pageId) { snapshotActor(actor); record("created", `Actor created: ${actor.name} (${actor.type})`); } });
-  Hooks.on("deleteActor", actor => { if (enabled() && pageId) record("deleted", `Actor deleted: ${actor.name}`); });
+  Hooks.on("createScene", scene => { if (enabled() && pageId && !scene.pack) record("created", `Scene created: ${scene.name}`); });
+  Hooks.on("createActor", actor => { if (enabled() && pageId && !actor.pack) { snapshotActor(actor); record("created", `Actor created: ${actor.name} (${actor.type})`); } });
+  Hooks.on("deleteActor", actor => { if (enabled() && pageId && !actor.pack) record("deleted", `Actor deleted: ${actor.name}`); });
 }
 
 export const session = { start: startSession, end: endSession, note, current: currentSession, list: listSessions, export: exportSession, markExported, flush };

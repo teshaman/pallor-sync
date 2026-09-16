@@ -89,7 +89,29 @@ export function normalize(data, type) {
   for (const k of VOLATILE[type] ?? []) delete d[k];
   if (type === "Playlist") for (const s of d.sounds ?? []) { delete s.playing; delete s.pausedTime; }
   if (type === "RollTable") for (const r of d.results ?? []) delete r.drawn;
-  return d;
+  return canon(d);
+}
+
+/**
+ * Canonical form for hashing: self-closing HTML tags become plain tags (the compendium copy is
+ * re-serialised that way), and empty strings, arrays and objects are dropped (dnd5e fills or omits
+ * empty rider lists and "none" fields depending on where the document was written).
+ */
+function canon(v) {
+  if (Array.isArray(v)) return v.map(canon);
+  if (v && typeof v === "object") {
+    const out = {};
+    for (const [k, x] of Object.entries(v)) {
+      const c = canon(x);
+      if (c === undefined || c === "" || c === "none") continue;
+      if (Array.isArray(c) && !c.length) continue;
+      if (c && typeof c === "object" && !Array.isArray(c) && !Object.keys(c).length) continue;
+      out[k] = c;
+    }
+    return out;
+  }
+  if (typeof v === "string") return v.replace(/\s*\/>/g, ">");
+  return v;
 }
 
 function stableStringify(v) {
