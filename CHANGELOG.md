@@ -3,6 +3,10 @@
 All notable changes to this module. Newest version first.
 Older packaged zips are kept in `backups/` and are never deleted.
 
+## 1.1.0 — 2026-09-16
+- Share everything by default (new world setting, on): every item, actor, journal, scene, roll table, macro and playlist is synced without marking anything. Automatically kept in their own world: player characters (setting 'Also share player characters', off), journals a player has ownership of (personal notes, PC journals, skill trees), the session log, and anything inside a folder named in 'Private folders' (default Private, Party, Personal).
+- Stop sharing now remembers the document as excluded so Share everything does not pick it up again; Share with the other world clears the exclusion.
+
 ## 1.0.3 — 2026-09-16
 - Session recorder ignores documents written to compendiums, so pushing shared items or scenes no longer logs them as 'Item created' / 'Scene created' table events.
 - Content hashes are canonicalised before comparing: self-closing HTML tags equal plain tags, and empty strings, empty lists and 'none' fields are ignored, so a first link between two worlds no longer reports formatting-only conflicts.

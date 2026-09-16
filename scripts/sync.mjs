@@ -162,9 +162,36 @@ export function inSharedFolder(doc) {
   return false;
 }
 
+function privateFolderNames() {
+  return (game.settings.get(MOD, "privateFolders") ?? "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+}
+
+function inPrivateFolder(doc) {
+  const names = privateFolderNames();
+  if (!names.length) return false;
+  for (let f = doc.folder; f; f = f.folder) if (names.includes(f.name.toLowerCase())) return true;
+  return false;
+}
+
+/**
+ * Shared = explicitly marked, or inside a Shared folder, or (with the "Share everything" setting, the
+ * default) any document that is not excluded, not a player character (unless allowed), not the session
+ * log and not inside a Private folder.
+ */
 export function isShared(doc) {
   const flag = doc.flags?.[MOD];
-  return !!(flag?.id || flag?.shared) || inSharedFolder(doc);
+  if (flag?.excluded) return false;
+  if (flag?.id || flag?.shared || inSharedFolder(doc)) return true;
+  if (!game.settings.get(MOD, "shareAll")) return false;
+  if (doc.documentName === "Actor" && doc.type === "character" && !game.settings.get(MOD, "shareCharacters")) return false;
+  if (doc.documentName === "JournalEntry" && (flag?.isLog || isPlayerOwned(doc))) return false;
+  return !inPrivateFolder(doc);
+}
+
+/** A non-GM user has explicit ownership of the document (personal notes, PC journals, skill trees). */
+export function isPlayerOwned(doc) {
+  const gm = new Set(game.users.filter(u => u.isGM).map(u => u.id));
+  return Object.entries(doc.ownership ?? {}).some(([uid, lvl]) => uid !== "default" && !gm.has(uid) && lvl > CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE);
 }
 
 async function ensureFolderPath(type, path, pack = null) {
@@ -381,7 +408,7 @@ export async function apply(entries, choices = {}) {
 /** Mark a world document as shared (it is pushed on the next sync). */
 export async function share(doc) {
   if (isShared(doc)) return false;
-  await doc.update({ [`flags.${MOD}.shared`]: true });
+  await doc.update({ [`flags.${MOD}.shared`]: true, [`flags.${MOD}.excluded`]: false });
   return true;
 }
 
@@ -394,6 +421,8 @@ export async function unshare(doc, { deleteShared = false } = {}) {
     if (packDoc) await packDoc.delete();
   }
   await doc.update({ [`flags.-=${MOD}`]: null });
+  // With "Share everything" on, the document must be remembered as excluded or it is shared again.
+  if (game.settings.get(MOD, "shareAll")) await doc.update({ [`flags.${MOD}.excluded`]: true });
   return true;
 }
 

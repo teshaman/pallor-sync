@@ -12,6 +12,9 @@ Hooks.once("init", () => {
   reg("packs", { config: false, type: Object, default: {} });
   reg("ignored", { config: false, type: Array, default: [] });
   reg("currentSession", { config: false, type: String, default: "" });
+  reg("shareAll", { name: "PSYNC.Settings.ShareAll.Name", hint: "PSYNC.Settings.ShareAll.Hint", config: true, type: Boolean, default: true });
+  reg("shareCharacters", { name: "PSYNC.Settings.ShareCharacters.Name", hint: "PSYNC.Settings.ShareCharacters.Hint", config: true, type: Boolean, default: false });
+  reg("privateFolders", { name: "PSYNC.Settings.PrivateFolders.Name", hint: "PSYNC.Settings.PrivateFolders.Hint", config: true, type: String, default: "Private, Party, Personal" });
   reg("sharedFolders", { name: "PSYNC.Settings.SharedFolders.Name", hint: "PSYNC.Settings.SharedFolders.Hint", config: true, type: String, default: "Shared" });
   reg("scanOnReady", { name: "PSYNC.Settings.ScanOnReady.Name", hint: "PSYNC.Settings.ScanOnReady.Hint", config: true, type: Boolean, default: true });
   reg("openOnChanges", { name: "PSYNC.Settings.OpenOnChanges.Name", hint: "PSYNC.Settings.OpenOnChanges.Hint", config: true, type: Boolean, default: true });
@@ -85,7 +88,7 @@ function entryOptions(collection) {
     },
     {
       name: "PSYNC.Context.Unshare", icon: '<i class="fa-solid fa-link-slash"></i>',
-      condition: li => game.user.isGM && !!docOf(li) && isShared(docOf(li)) && !!docOf(li).flags?.[MOD],
+      condition: li => game.user.isGM && !!docOf(li) && isShared(docOf(li)),
       callback: async li => {
         const doc = docOf(li);
         const deleteShared = doc.getFlag(MOD, "id") ? await foundry.applications.api.DialogV2.confirm({

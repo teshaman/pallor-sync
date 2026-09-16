@@ -61,13 +61,13 @@
 
   "PSYNC.Picker.Title": "Share documents",
   "PSYNC.Picker.Filter": "Filter by name",
-  "PSYNC.Picker.Hint": "Ticked documents are marked as shared and pushed on the next sync. Anything inside a folder named in the Shared folders setting is shared automatically.",
+  "PSYNC.Picker.Hint": "Ticked documents are marked as shared and pushed on the next sync. With Share everything on, only excluded documents, player characters and Private folders appear here.",
   "PSYNC.Picker.Empty": "Nothing unshared of this type.",
   "PSYNC.Picker.Share": "Share selected",
 
   "PSYNC.Context.Share": "Share with the other world",
   "PSYNC.Context.Unshare": "Stop sharing",
-  "PSYNC.Context.UnshareConfirm": "Also delete the shared copy of \"{name}\" from the compendium? (No keeps it there for the other world.)",
+  "PSYNC.Context.UnshareConfirm": "Also delete the shared copy of \"{name}\" from the compendium? (No keeps it there for the other world.) The document is remembered as excluded until you share it again.",
   "PSYNC.Context.ShareFolder": "Share folder contents",
 
   "PSYNC.Session.Title": "Session recorder",
@@ -86,6 +86,12 @@
   "PSYNC.Session.CopyLast": "Copy last session",
   "PSYNC.Session.OpenLog": "Open log",
 
+  "PSYNC.Settings.ShareAll.Name": "Share everything",
+  "PSYNC.Settings.ShareAll.Hint": "Every item, actor, journal, scene, roll table, macro and playlist is shared with the other world, except: player characters (see below), journals a player has ownership of, anything inside a Private folder, and documents you chose Stop sharing on. Off = share only what you mark.",
+  "PSYNC.Settings.ShareCharacters.Name": "Also share player characters",
+  "PSYNC.Settings.ShareCharacters.Hint": "With Share everything on, include actors of type character. Off keeps each party's PCs in their own world.",
+  "PSYNC.Settings.PrivateFolders.Name": "Private folders",
+  "PSYNC.Settings.PrivateFolders.Hint": "Comma-separated folder names. Documents inside a folder with one of these names (or its subfolders) stay in this world. Default: Private, Party, Personal.",
   "PSYNC.Settings.SharedFolders.Name": "Shared folders",
   "PSYNC.Settings.SharedFolders.Hint": "Comma-separated folder names. Every document inside a folder with one of these names (or its subfolders) is shared automatically.",
   "PSYNC.Settings.ScanOnReady.Name": "Scan when the world starts",

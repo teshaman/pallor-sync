@@ -8,7 +8,8 @@ Keeps two Foundry worlds (Party Opnion and Party Missi in the Pillars of Palor c
 
 **What is shared**
 
-- Any document you mark with the sidebar context menu *Share with the other world* (or *Share folder contents* on a folder), or through the *Share…* button in the Pallor Sync window.
+- By default **everything** (setting *Share everything*, on): every item, actor, journal, scene, roll table, macro and playlist, except player characters (setting *Also share player characters*), journals a player has ownership of (personal notes, PC journals, skill trees), the module's own session log, documents inside a folder named in *Private folders* (default `Private, Party, Personal`), and documents you chose *Stop sharing* on.
+- With *Share everything* off: any document you mark with the sidebar context menu *Share with the other world* (or *Share folder contents* on a folder), or through the *Share…* button in the Pallor Sync window.
 - Everything inside a folder named in the *Shared folders* setting (default `Shared`), including subfolders. Drop a quest journal, a world map scene or an item into `Shared` and it travels.
 
 **How the sync works**
