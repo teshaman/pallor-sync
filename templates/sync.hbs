@@ -1,0 +1,80 @@
+<div class="ps-toolbar">
+  <button type="button" data-action="rescan" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-rotate {{#if busy}}fa-spin{{/if}}"></i> {{localize "PSYNC.Rescan"}}</button>
+  <button type="button" data-action="auto" {{#if busy}}disabled{{/if}} data-tooltip="{{localize 'PSYNC.AutoHint'}}"><i class="fa-solid fa-wand-magic-sparkles"></i> {{localize "PSYNC.Auto"}}</button>
+  <button type="button" data-action="apply" {{#if busy}}disabled{{/if}}><i class="fa-solid fa-check"></i> {{localize "PSYNC.Apply"}}</button>
+  <span class="ps-spacer"></span>
+  <button type="button" data-action="share"><i class="fa-solid fa-share-nodes"></i> {{localize "PSYNC.ShareMore"}}</button>
+  <button type="button" data-action="packs"><i class="fa-solid fa-book-atlas"></i> {{localize "PSYNC.Packs.Short"}}</button>
+</div>
+
+<div class="ps-body">
+  <section class="ps-session">
+    <h3><i class="fa-solid fa-scroll"></i> {{localize "PSYNC.Session.Title"}}</h3>
+    {{#if session}}
+    <p><strong>{{session.name}}</strong> · {{localize "PSYNC.Session.Since"}} {{session.startedLabel}} · {{session.events}} {{localize "PSYNC.Session.Events"}}</p>
+    <div class="ps-actions">
+      <button type="button" data-action="sessionNote"><i class="fa-solid fa-pen"></i> {{localize "PSYNC.Session.Note"}}</button>
+      <button type="button" data-action="sessionCopy"><i class="fa-solid fa-copy"></i> {{localize "PSYNC.Session.Copy"}}</button>
+      <button type="button" data-action="sessionOpen"><i class="fa-solid fa-book-open"></i> {{localize "PSYNC.Session.OpenLog"}}</button>
+      <button type="button" data-action="sessionEnd" class="ps-danger"><i class="fa-solid fa-flag-checkered"></i> {{localize "PSYNC.Session.End"}}</button>
+    </div>
+    {{else}}
+    <p>{{localize "PSYNC.Session.NoneRunning"}} {{#if sessionCount}}({{sessionCount}} {{localize "PSYNC.Session.Recorded"}}){{/if}}</p>
+    <div class="ps-actions">
+      <button type="button" data-action="sessionStart" {{#unless logEnabled}}disabled{{/unless}}><i class="fa-solid fa-play"></i> {{localize "PSYNC.Session.Start"}}</button>
+      <button type="button" data-action="sessionCopy" {{#unless sessionCount}}disabled{{/unless}}><i class="fa-solid fa-copy"></i> {{localize "PSYNC.Session.CopyLast"}}</button>
+      <button type="button" data-action="sessionOpen" {{#unless sessionCount}}disabled{{/unless}}><i class="fa-solid fa-book-open"></i> {{localize "PSYNC.Session.OpenLog"}}</button>
+    </div>
+    {{/if}}
+  </section>
+
+  {{#each problems}}<p class="ps-problem"><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</p>{{/each}}
+
+  {{#if result}}
+  <section class="ps-result">
+    <p>{{localize "PSYNC.LastRun"}}: {{result.done.length}} {{localize "PSYNC.Done"}}{{#if result.errors.length}}, {{result.errors.length}} {{localize "PSYNC.Errors"}}{{/if}}</p>
+    {{#each result.errors}}<p class="ps-problem">{{type}} {{name}} ({{action}}): {{error}}</p>{{/each}}
+  </section>
+  {{/if}}
+
+  {{#if hasPlan}}
+    {{#if groups.length}}
+    <div class="ps-select"><a data-action="selectAll">{{localize "PSYNC.SelectAll"}}</a> · <a data-action="selectNone">{{localize "PSYNC.SelectNone"}}</a> · {{sameCount}} {{localize "PSYNC.InSync"}}</div>
+    {{#each groups}}
+    <section class="ps-group ps-{{action}}">
+      <h3>{{label}} <span class="ps-count">{{count}}</span></h3>
+      <p class="ps-hint">{{hint}}</p>
+      <ul>
+        {{#each entries}}
+        <li class="ps-entry">
+          {{#unless isIgnored}}<input type="checkbox" data-sid="{{sid}}" {{#if checked}}checked{{/if}}>{{/unless}}
+          <span class="ps-type">{{typeLabel}}</span>
+          <a class="ps-name" data-action="openDoc" data-uuid="{{openUuid}}">{{name}}</a>
+          {{#if folderPath}}<span class="ps-folder">{{folderPath}}</span>{{/if}}
+          <span class="ps-reason">{{reasonLabel}}</span>
+          {{#if isConflict}}
+          <span class="ps-choice">
+            <label><input type="radio" name="choice-{{sid}}" value="world" checked> {{localize "PSYNC.KeepWorld"}}</label>
+            <label><input type="radio" name="choice-{{sid}}" value="shared"> {{localize "PSYNC.KeepShared"}}</label>
+          </span>
+          {{/if}}
+          {{#if canIgnore}}<a class="ps-ignore" data-action="ignore" data-sid="{{sid}}" data-tooltip="{{localize 'PSYNC.IgnoreHint'}}"><i class="fa-solid fa-eye-slash"></i></a>{{/if}}
+          {{#if isIgnored}}<a class="ps-ignore" data-action="unignore" data-sid="{{sid}}" data-tooltip="{{localize 'PSYNC.UnignoreHint'}}"><i class="fa-solid fa-eye"></i></a>{{/if}}
+          {{#if warningText}}<div class="ps-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{warningText}}</div>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    </section>
+    {{/each}}
+    {{else}}
+    <p class="ps-empty"><i class="fa-solid fa-circle-check"></i> {{localize "PSYNC.AllInSync"}} ({{sameCount}})</p>
+    {{/if}}
+  {{else}}
+  <p class="ps-empty">{{#if busy}}{{localize "PSYNC.Scanning"}}{{else}}{{localize "PSYNC.NoPlan"}}{{/if}}</p>
+  {{/if}}
+
+  <section class="ps-packs">
+    <h3><i class="fa-solid fa-book-atlas"></i> {{localize "PSYNC.Packs.Title"}} · {{world}}</h3>
+    <ul>{{#each packs}}<li><span class="ps-type">{{label}}</span> {{pack}}</li>{{/each}}</ul>
+  </section>
+</div>

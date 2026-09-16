@@ -1,0 +1,16 @@
+<p class="ps-hint">{{localize "PSYNC.Packs.Explain"}}</p>
+{{#each rows}}
+<div class="form-group">
+  <label>{{label}}</label>
+  <div class="form-fields">
+    <select name="{{type}}">
+      <option value="auto" {{#if auto}}selected{{/if}}>{{localize "PSYNC.Packs.Auto"}}{{#if autoLabel}} — {{autoLabel}}{{/if}}</option>
+      <option value="none" {{#if none}}selected{{/if}}>{{localize "PSYNC.Packs.None"}}</option>
+      {{#each options}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+    </select>
+  </div>
+</div>
+{{/each}}
+<footer class="form-footer">
+  <button type="submit"><i class="fa-solid fa-save"></i> {{localize "PSYNC.Packs.Save"}}</button>
+</footer>

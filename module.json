@@ -1,0 +1,24 @@
+{
+  "id": "pallor-sync",
+  "title": "Pallor Sync",
+  "description": "Keeps items, actors, journals, scenes, roll tables, macros and playlists in step between two Foundry worlds through a shared compendium (The Forge shared compendiums or any unlocked module pack). Three-way change detection: push what changed here, pull what changed elsewhere, flag conflicts for the GM. Script API for Claude Bridge, Codex and macros.",
+  "version": "1.0.0",
+  "manifest": "https://github.com/teshaman/pallor-sync/releases/latest/download/module.json",
+  "download": "https://github.com/teshaman/pallor-sync/releases/download/1.0.0/module.zip",
+  "authors": [
+    { "name": "Pillars of Palor" }
+  ],
+  "esmodules": [
+    "./scripts/main.mjs"
+  ],
+  "styles": [
+    "./styles/sync.css"
+  ],
+  "languages": [
+    { "lang": "en", "name": "English", "path": "lang/en.json" }
+  ],
+  "compatibility": {
+    "minimum": "13.0",
+    "verified": "14.365"
+  }
+}

@@ -1,0 +1,18 @@
+<div class="ps-toolbar">
+  <select data-type>{{#each types}}<option value="{{type}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+  <input type="text" data-filter value="{{filter}}" placeholder="{{localize 'PSYNC.Picker.Filter'}}">
+  <a data-action="all">{{localize "PSYNC.SelectAll"}}</a> · <a data-action="none">{{localize "PSYNC.SelectNone"}}</a>
+</div>
+<p class="ps-hint">{{localize "PSYNC.Picker.Hint"}}</p>
+<ul class="ps-list">
+  {{#each docs}}
+  <li class="ps-row" data-name="{{name}}">
+    <label><input type="checkbox" data-uuid="{{uuid}}"> {{name}}{{#if sub}} <span class="ps-type">{{sub}}</span>{{/if}}{{#if folder}} <span class="ps-folder">{{folder}}</span>{{/if}}</label>
+  </li>
+  {{else}}
+  <li class="ps-empty">{{localize "PSYNC.Picker.Empty"}}</li>
+  {{/each}}
+</ul>
+<div class="ps-actions">
+  <button type="button" data-action="shareSelected"><i class="fa-solid fa-share-nodes"></i> {{localize "PSYNC.Picker.Share"}}</button>
+</div>
