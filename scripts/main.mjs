@@ -1,4 +1,4 @@
-import { MOD, TYPES, scan, apply, autoEntries, syncAll, share, unshare, ignore, packMap, isShared, hashOf } from "./sync.mjs";
+import { MOD, TYPES, scan, apply, autoEntries, syncAll, share, unshare, ignore, packMap, sharedModules, migratePack, isShared, hashOf } from "./sync.mjs";
 import { session, installRecorder } from "./session-log.mjs";
 import { SyncApp, PackConfigApp, SharePickerApp } from "./apps.mjs";
 
@@ -47,6 +47,9 @@ Hooks.once("init", () => {
     isShared,
     hash: hashOf,
     packs: packMap,
+    sharedModules,
+    /** Copy a whole pack into another of the same type (ids and folders kept); {deleteSource: true} empties the old one afterwards. */
+    migratePack,
     open: (plan) => SyncApp.open(plan),
     openPicker: type => SharePickerApp.open(type),
     /** Session recorder: start(name?), end(), note(text), current(), list(), export(idOrName?), markExported(id), flush(). */

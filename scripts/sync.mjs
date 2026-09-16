@@ -19,13 +19,21 @@ function flagOf(doc, key) { return doc?.flags?.[MOD]?.[key]; }
 /* -------------------------------------------- */
 
 /** Pack collection ids per document type, from the setting or auto-detected shared packs. */
+/** Active Forge shared-compendium modules, the one with the most packs first. */
+export function sharedModules() {
+  return game.modules.filter(m => m.active && m.id.startsWith(SHARED_PREFIX)).sort((a, b) => (b.packs?.size ?? 0) - (a.packs?.size ?? 0));
+}
+
 export function packMap() {
   const saved = game.settings.get(MOD, "packs") ?? {};
   const map = {};
+  const mods = sharedModules();
   for (const type of TYPES) {
     if (saved[type] !== undefined) { if (saved[type]) map[type] = saved[type]; continue; }
-    const auto = game.packs.find(p => p.metadata.type === type && p.metadata.packageName?.startsWith(SHARED_PREFIX));
-    if (auto) map[type] = auto.collection;
+    for (const mod of mods) {
+      const auto = game.packs.find(p => p.metadata.type === type && p.metadata.packageName === mod.id);
+      if (auto) { map[type] = auto.collection; break; }
+    }
   }
   return map;
 }
@@ -347,6 +355,40 @@ export async function unshare(doc, { deleteShared = false } = {}) {
   }
   await doc.update({ [`flags.-=${MOD}`]: null });
   return true;
+}
+
+/**
+ * Copy every document of one pack into another of the same type, keeping ids and folder paths.
+ * Documents whose id already exists in the target are skipped. Used to move a shared compendium.
+ */
+export async function migratePack(fromId, toId, { deleteSource = false } = {}) {
+  const from = game.packs.get(fromId), to = game.packs.get(toId);
+  if (!from || !to) throw new Error(`Pack not found: ${!from ? fromId : toId}`);
+  if (from.metadata.type !== to.metadata.type) throw new Error(`Types differ: ${from.metadata.type} vs ${to.metadata.type}`);
+  if (to.locked) throw new Error(`Target pack is locked: ${to.metadata.label}`);
+  const cls = CONFIG[to.metadata.type].documentClass;
+  const existing = new Set(to.index.map(i => i._id));
+  const pathOf = f => { const n = []; for (let x = f; x; x = x.folder) n.unshift(x.name); return n.join("/"); };
+  const docs = await from.getDocuments();
+  const batch = [], skipped = [];
+  for (const doc of docs) {
+    if (existing.has(doc.id)) { skipped.push(doc.name); continue; }
+    const data = stripStats(doc.toObject());
+    data.folder = doc.folder ? await ensureFolderPath(to.metadata.type, pathOf(doc.folder), to) : null;
+    batch.push(data);
+  }
+  const created = batch.length ? await cls.createDocuments(batch, { pack: to.collection, keepId: true }) : [];
+  // Re-point world documents that were linked to the old pack
+  const collection = game.collections.get(to.metadata.type);
+  const relinked = [];
+  for (const doc of collection) {
+    if (flagOf(doc, "pack") === from.collection) { await doc.update({ [`flags.${MOD}.pack`]: to.collection }); relinked.push(doc.name); }
+  }
+  if (deleteSource && created.length === batch.length) {
+    const ids = docs.filter(d => !existing.has(d.id)).map(d => d.id);
+    if (ids.length) await cls.deleteDocuments(ids, { pack: from.collection });
+  }
+  return { created: created.map(d => d.name), skipped, relinked, source: from.collection, target: to.collection };
 }
 
 /** Entries that are safe to apply without a GM decision. */

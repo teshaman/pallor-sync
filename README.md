@@ -4,7 +4,7 @@ Keeps two Foundry worlds (Party Opnion and Party Missi in the Pillars of Palor c
 
 ## Part 1 — compendium sync
 
-**Storage** is any unlocked compendium both worlds can see. On The Forge that is a *Shared Compendiums* module (Forge site → Game Configuration → Shared Compendiums): create one pack per document type you want to share (Item, Actor, JournalEntry, Scene, RollTable, Macro, Playlist). The module picks the first Forge shared pack of each type automatically; *Configure Settings → Pallor Sync → Choose packs* overrides that.
+**Storage** is any unlocked compendium both worlds can see. On The Forge that is a *Shared Compendiums* module (Forge site → Game Configuration → Shared Compendiums): create one pack per document type you want to share (Item, Actor, JournalEntry, Scene, RollTable, Macro, Playlist). A Forge shared compendium cannot be edited after creation, so create it with every pack type you want from the start. The module picks the packs of the active Forge shared compendium that has the most packs; *Configure Settings → Pallor Sync → Choose packs* overrides that per type.
 
 **What is shared**
 
@@ -48,6 +48,7 @@ await api.apply(entries, {sid: "shared"}); // apply chosen entries; choices per 
 await api.share("Item.abc123");         // or a document, or {type: "JournalEntry", name: "Quest: The Tablet"}
 await api.unshare(doc, {deleteShared: true});
 await api.ignore(sid);
+await api.migratePack("forge-vtt-shared-compendiums-old.items", "forge-vtt-shared-compendiums-new.items", {deleteSource: false}); // move a pack, ids + folders kept
 api.session.current();                  // running session or null
 await api.session.start("Session 12");
 api.session.note("Party accepted the baron's offer");
