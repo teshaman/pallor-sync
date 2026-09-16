@@ -3,6 +3,10 @@
 All notable changes to this module. Newest version first.
 Older packaged zips are kept in `backups/` and are never deleted.
 
+## 1.0.2 — 2026-09-16
+- Fix: a linked pair whose stored hashes differ only because the compendium copy is re-formatted on write (for example <br /> to <br>, empty activity fields to 'none') is now reported as in sync instead of a conflict; three-way check order corrected.
+- Scan links a shared document arriving from the other world to a same-name local copy that was never shared (link if identical, conflict otherwise) instead of pulling it in as a duplicate.
+
 ## 1.0.1 — 2026-09-16
 - api.migratePack(fromPack, toPack, {deleteSource}) copies a whole compendium pack into another of the same type, keeping ids and folder paths, and re-points world documents linked to the old pack; used to replace a Forge shared compendium (their pack list cannot be edited after creation).
 - Automatic pack detection now prefers the active Forge shared compendium that has the most packs, so an old single-pack shared module never wins over the new full one.

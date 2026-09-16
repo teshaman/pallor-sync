@@ -217,13 +217,20 @@ export async function scan() {
       const worldChanged = hW !== flag.worldHash, packChanged = hP !== flag.packHash;
       const ext = { ...base, sid, packUuid: packDoc.uuid };
       let e;
-      if (hW === hP) e = entry(type, "same", worldChanged || packChanged ? "touch" : "same", ext);
+      if (!worldChanged && !packChanged) e = entry(type, "same", "same", ext);
+      else if (hW === hP) e = entry(type, "same", "touch", ext);
       else if (worldChanged && !packChanged) e = entry(type, "push", "world-changed", ext);
       else if (!worldChanged && packChanged) e = entry(type, "pull", "shared-changed", ext);
       else e = entry(type, "conflict", "both-changed", { ...ext, choice: "world" });
       if (e.action === "push" || e.action === "conflict") e.warnings = assetWarnings(doc);
       entries.push(e);
     }
+
+    // Unshared world documents by name: a shared document arriving from the other world is linked to
+    // a same-name local copy instead of being pulled in as a duplicate.
+    const worldUnsharedByName = new Map();
+    for (const doc of collection) if (!flagOf(doc, "id") && !worldUnsharedByName.has(nameKey(doc))) worldUnsharedByName.set(nameKey(doc), doc);
+    const worldClaimed = new Set(worldShared.map(d => d.id));
 
     for (const d of packDocs) {
       if (claimed.has(d.id)) continue;
@@ -232,6 +239,17 @@ export async function scan() {
       const id = sid ?? d.id;
       const base = { name: d.name, sid: id, packUuid: d.uuid, pack: pack.collection, folderPath: flagOf(d, "folderPath") ?? "" };
       if (ignored.has(id)) { entries.push(entry(type, "ignored", linked ? "new-from-shared" : "unlinked", base)); continue; }
+      const local = worldUnsharedByName.get(nameKey(d));
+      if (local && !worldClaimed.has(local.id)) {
+        worldClaimed.add(local.id);
+        const [hW, hP] = await Promise.all([hashOf(local), hashOf(d)]);
+        const same = hW === hP;
+        const e = entry(type, same ? "link" : "conflict", same ? "link-same" : "link-differs",
+          { ...base, worldUuid: local.uuid, folderPath: folderPathOf(local), link: true, choice: "world" });
+        e.warnings = assetWarnings(local);
+        entries.push(e);
+        continue;
+      }
       entries.push(entry(type, linked ? "pull" : "available", linked ? "new-from-shared" : "unlinked", base));
     }
   }
